@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -544,9 +543,9 @@ function getDispositionsField(s){ return s.fields.find(f=>f.type==='dispositions
 async function loadAll(){
   for (const tab of Object.keys(SCHEMAS)){
     try{
-      const raw = localStorage.getItem(SCHEMAS[tab].storageKey);
-      if (raw){
-        state[tab] = JSON.parse(raw);
+      const res = await window.storage.get(SCHEMAS[tab].storageKey, true);
+      if (res && res.value){
+        state[tab] = JSON.parse(res.value);
       } else {
         // Belum ada data tersimpan -> isi awal dengan data asli dari Excel
         state[tab] = SEED_DATA[tab].map((row,i)=> ({...row, id: uid(), no: i+1}));
@@ -560,7 +559,7 @@ async function loadAll(){
 
 async function persist(tab){
   try{
-    localStorage.setItem(SCHEMAS[tab].storageKey, JSON.stringify(state[tab]));
+    await window.storage.set(SCHEMAS[tab].storageKey, JSON.stringify(state[tab]), true);
   }catch(e){
     showToast("Gagal menyimpan — coba lagi");
     console.error(e);
